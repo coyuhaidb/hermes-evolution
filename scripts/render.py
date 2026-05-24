@@ -41,6 +41,13 @@ def generate_html(history):
     active_svcs = sum(1 for s in services if s.get("status") == "active")
     mem_size = latest.get("memory", {}).get("size", "N/A")
     
+    # 系统维度
+    sysinfo = latest.get("system", {})
+    uptime = sysinfo.get("uptime", "N/A")
+    disk_usage = sysinfo.get("disk", "N/A")
+    total_commits = int(sysinfo.get("commits", 0) or 0)
+    raw_sources = latest.get("wiki", {}).get("raw_sources", 0)
+    
     version = get_version()
     
     # 技能分组
@@ -181,6 +188,8 @@ body{{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-grad
   <div class="stat-card"><div class="stat-number green">{wiki_pages}</div><div class="stat-label">Wiki 页面</div></div>
   <div class="stat-card"><div class="stat-number purple">{active_svcs}</div><div class="stat-label">运行服务</div></div>
   <div class="stat-card"><div class="stat-number orange">{days_active}</div><div class="stat-label">追踪天数</div></div>
+  <div class="stat-card"><div class="stat-number" style="background:linear-gradient(135deg,#f093fb,#f59e0b);-webkit-background-clip:text;background-clip:text">{total_commits}</div><div class="stat-label">Git 提交</div></div>
+  <div class="stat-card"><div class="stat-number" style="background:linear-gradient(135deg,#34d399,#3fb950);-webkit-background-clip:text;background-clip:text">{raw_sources}</div><div class="stat-label">原始资料</div></div>
 </div>
 
 <div class="evo-card">
@@ -188,6 +197,17 @@ body{{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-grad
     <div class="evo-item"><div class="evo-icon">📈</div><div class="evo-number">+{skills_growth}</div><div class="evo-label">技能增长</div></div>
     <div class="evo-item"><div class="evo-icon">📚</div><div class="evo-number">+{wiki_growth}</div><div class="evo-label">知识增长</div></div>
     <div class="evo-item"><div class="evo-icon">🧠</div><div class="evo-number">{mem_size}</div><div class="evo-label">记忆库</div></div>
+  </div>
+</div>
+
+<!-- 系统信息 -->
+<div class="section">
+  <h2 class="section-title"><span>💻</span> 系统状态</h2>
+  <div style="display:flex;flex-wrap:wrap;gap:12px">
+    <div class="service-item">⏱ 运行 {uptime}</div>
+    <div class="service-item">💾 磁盘 {disk_usage}</div>
+    <div class="service-item">📦 {total_commits} 次提交</div>
+    <div class="service-item">📄 {raw_sources} 篇资料</div>
   </div>
 </div>
 

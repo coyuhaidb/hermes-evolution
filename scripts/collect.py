@@ -117,6 +117,11 @@ def main():
             "npm": run("npm --version 2>/dev/null"),
             "uv": run("uv --version 2>/dev/null | cut -d' ' -f2"),
         },
+        "system": {
+            "uptime": run("uptime -p 2>/dev/null | sed 's/up //'"),
+            "disk": run("df -h / 2>/dev/null | tail -1 | awk '{print $5}'"),
+            "commits": run("cd " + PROJECT_DIR + " && git rev-list --count HEAD 2>/dev/null"),
+        },
         "hermes_version": run("hermes --version 2>/dev/null | head -1"),
     }
     
@@ -124,12 +129,15 @@ def main():
     prev = history["snapshots"][-1] if history["snapshots"] else None
     changes = {}
     if prev:
-        if snapshot["skills"]["total"] != prev["skills"]["total"]:
-            changes["skills"] = f"{prev['skills']['total']} → {snapshot['skills']['total']}"
-        if snapshot["wiki"]["pages"] != prev["wiki"]["pages"]:
-            changes["wiki_pages"] = f"{prev['wiki']['pages']} → {snapshot['wiki']['pages']}"
-        if snapshot["wiki"]["raw_sources"] != prev["wiki"]["raw_sources"]:
-            changes["wiki_sources"] = f"{prev['wiki']['raw_sources']} → {snapshot['wiki']['raw_sources']}"
+        for key in ["skills", "wiki_pages", "wiki_sources", "commits"]:
+            curr_val = snapshot.get(key if key != "wiki_pages" else "wiki", {}).get("total" if key != "wiki_pages" else "pages", 0) if key != "commits" else int(snapshot.get("system", {}).get("commits", 0) or 0)
+            prev_val = prev.get(key if key != "wiki_pages" else "wiki", {}).get("total" if key != "wiki_pages" else "pages", 0) if key != "commits" else int(prev.get("system", {}).get("commits", 0) or 0)
+            key2 = key
+            label = {"skills": "技能数", "wiki_pages": "Wiki 页面", "wiki_sources": "原始资料", "commits": "Git 提交"}.get(key, key)
+            if curr_val != prev_val:
+                changes[key2] = f"{prev_val} → {curr_val}"
+        if prev.get("services") != snapshot["services"]:
+            changes["services"] = "服务状态变化"
     
     snapshot["changes_since_last"] = changes
     history["snapshots"].append(snapshot)
