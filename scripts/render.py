@@ -20,6 +20,139 @@ def get_version():
         return "0.0.0"
 
 
+def _skill_desc_zh(name, en_desc):
+    """将技能描述转为中文，没有翻译时直接显示英文"""
+    # 已知技能的常用中文描述
+    known = {
+        # autonomous-ai-agents
+        "claude-code": "委托 Claude Code 执行编码任务",
+        "codex": "委托 OpenAI Codex CLI 执行编码任务", 
+        "hermes-agent": "配置、扩展或贡献 Hermes Agent",
+        "kanban-codex-lane": "在看板工作流中运行 Codex CLI",
+        "opencode": "委托 OpenCode CLI 执行编码任务",
+        # creative
+        "architecture-diagram": "绘制深色主题 SVG 架构图",
+        "ascii-art": "生成字符画艺术",
+        "ascii-video": "将视频/音频转为字符动画",
+        "baoyu-article-illustrator": "为文章配图",
+        "baoyu-comic": "知识科普漫画创作",
+        "baoyu-infographic": "信息图设计制作",
+        "claude-design": "设计制作 HTML 页面",
+        "design-md": "编写 DESIGN.md 规范文件",
+        "excalidraw": "手绘风格图表绘制",
+        "humanizer": "文本去 AI 化，增加真实感",
+        "ideation": "通过创意约束生成项目点子",
+        "manim-video": "数学/算法动画制作",
+        "p5js": "生成式艺术和交互式 3D 编程",
+        "pixel-art": "像素画创作",
+        "popular-web-designs": "知名品牌页面模板",
+        "sketch": "快速 HTML 原型设计",
+        "songwriting-and-ai-music": "歌曲创作和 AI 音乐制作",
+        "touchdesigner-mcp": "控制 TouchDesigner 实例",
+        # data-science
+        "jupyter-live-kernel": "通过 Jupyter 内核运行 Python",
+        # devops
+        "hermes-background-service": "部署 Hermes 为 24/7 后台服务",
+        "kanban-orchestrator": "看板任务编排调度",
+        "kanban-worker": "看板工作者执行指南",
+        "linux-beginner-setup": "Linux 新手系统初始化设置",
+        "webhook-subscriptions": "Webhook 事件订阅管理",
+        # email
+        "himalaya": "终端邮件客户端管理",
+        # gaming
+        "minecraft-modpack-server": "搭建 Minecraft 模组服务器",
+        "pokemon-player": "精灵宝可梦游戏模拟器",
+        # github
+        "codebase-inspection": "代码库统计分析",
+        "github-auth": "GitHub 认证配置",
+        "github-code-review": "PR 代码审查",
+        "github-issues": "创建和管理 GitHub Issues",
+        "github-pr-workflow": "GitHub PR 全流程管理",
+        "github-repo-management": "仓库克隆/创建/管理",
+        # mcp
+        "native-mcp": "MCP 客户端连接服务器",
+        # media
+        "gif-search": "搜索/下载 GIF 动图",
+        "heartmula": "AI 音乐生成",
+        "songsee": "音频特征可视化分析",
+        "spotify": "Spotify 播放控制",
+        "youtube-content": "YouTube 视频转文字总结",
+        # mlops
+        "huggingface-hub": "HuggingFace 模型搜索/下载",
+        "llama-cpp": "本地 GGUF 模型推理",
+        "obliteratus": "LLM 拒绝行为消除工具",
+        "serving-llms-vllm": "vLLM 高性能模型服务",
+        "segment-anything-model": "SAM 图像分割模型",
+        "audiocraft-audio-generation": "AI 音乐和音效生成",
+        "evaluating-llms-harness": "LLM 基准测试",
+        "weights-and-biases": "W&B 实验追踪",
+        "dspy": "声明式 LLM 编程框架",
+        # note-taking
+        "obsidian": "Obsidian 笔记读写搜索",
+        # productivity
+        "airtable": "Airtable 表格 API 管理",
+        "google-workspace": "谷歌套件管理（邮件/日历/文档）",
+        "linear": "Linear 项目管理",
+        "maps": "地图查询和路线规划",
+        "nano-pdf": "PDF 文本编辑",
+        "notion": "Notion 笔记和数据库管理",
+        "ocr-and-documents": "PDF/扫描件文字提取",
+        "powerpoint": "PowerPoint 幻灯片编辑",
+        "teams-meeting-pipeline": "Teams 会议纪要流水线",
+        # red-teaming
+        "godmode": "LLM 越狱测试",
+        # research
+        "arxiv": "arXiv 论文搜索",
+        "blogwatcher": "博客 RSS 订阅监控",
+        "llm-wiki": "Karpathy 风格 LLM 知识库",
+        "polymarket": "Polymarket 预测市场查询",
+        # smart-home
+        "openhue": "Philips Hue 智能灯控制",
+        # social-media
+        "xurl": "X/Twitter 发布和搜索",
+        # software-development
+        "debugging-hermes-tui-commands": "调试 Hermes TUI 命令",
+        "hermes-agent-skill-authoring": "编写 Hermes 技能文档",
+        "node-inspect-debugger": "Node.js 调试器",
+        "plan": "规划模式：写计划不执行",
+        "python-debugpy": "Python 远程调试",
+        "requesting-code-review": "代码安全预审查",
+        "spike": "快速实验验证想法",
+        "subagent-driven-development": "子代理驱动开发",
+        "systematic-debugging": "四阶段根因调试",
+        "test-driven-development": "测试驱动开发",
+        "writing-plans": "编写实现计划",
+        # apple
+        "apple-notes": "管理 Apple 备忘录",
+        "apple-reminders": "管理 Apple 提醒事项",
+        "apple-findmy": "追踪 Apple 设备位置",
+        "apple-imessage": "发送和接收 iMessage",
+        "findmy": "追踪 Apple 设备位置",
+        "imessage": "发送和接收 iMessage",
+        "macos-computer-use": "macOS 电脑操作自动化",
+        "comfyui": "用 ComfyUI 生成图像、视频和音频",
+        "creative-ideation": "通过创意约束生成项目想法",
+        "ideation": "通过创意约束生成项目想法",
+        "pretext": "使用 @chenglou/pretext 构建浏览器演示",
+        "hermes-web-services": "在 WSL 上部署 Hermes Web 管理界面",
+        "hermes-background-service": "将 Hermes 部署为 24/7 后台服务",
+        "research-paper-writing": "撰写 ML 论文（NeurIPS/ICML/ICLR）",
+        "writing-plans": "编写结构化的实现计划",
+        "agent-identity-optimization": "优化 AI 代理的核心身份文件",
+        "agent-soul-files": "AI 代理三灵魂文件：身份、用户画像、系统记忆",
+        "beginner-project-scaffolding": "为新手搭建完整的项目骨架",
+        "structured-expert-review": "召集多位 AI 专家进行项目评审",
+        # yuanbao
+        "yuanbao": "腾讯元宝群组管理",
+    }
+    if name in known:
+        return known[name]
+    # 没有翻译就用英文原文
+    if en_desc:
+        return en_desc
+    return "无描述"
+
+
 def generate_html(history):
     snapshots = history["snapshots"]
     milestones = history.get("milestones", [])
@@ -72,10 +205,8 @@ def generate_html(history):
         for s in skills:
             name = s["name"]
             desc = s.get("description", "")
-            if desc:
-                skills_html += f'<div class="skill-card"><div class="sk-name">{name}</div><div class="sk-desc">{desc}</div></div>'
-            else:
-                skills_html += f'<div class="skill-card"><div class="sk-name">{name}</div></div>'
+            desc_zh = _skill_desc_zh(name, desc)
+            skills_html += f'<div class="skill-card"><div class="sk-name">{name}</div><div class="sk-desc">{desc_zh}</div></div>'
         skills_html += '</div></div>'
     
     # 服务HTML
