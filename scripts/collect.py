@@ -5,15 +5,20 @@ import json
 import os
 import subprocess
 import shutil
+import sys
 from datetime import datetime, date
 from pathlib import Path
 
-HOME = os.environ["HOME"]
-PROJECT = os.path.join(HOME, "projects", "hermes-evolution")
-DATA_FILE = os.path.join(PROJECT, "data", "evolution.json")
-HTML_FILE = os.path.join(PROJECT, "index.html")
-HERMES_SKILLS = os.path.join(HOME, ".hermes", "skills")
-WIKI_DIR = os.path.join(HOME, "wiki")
+# 确保项目根目录在导入路径中
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+from scripts.config import (
+    PROJECT_DIR, DATA_FILE, HTML_FILE,
+    HERMES_SKILLS, WIKI_DIR, STATE_DB, SERVICES
+)
+
 NOW = datetime.now()
 TODAY = NOW.strftime("%Y-%m-%d %H:%M")
 
@@ -51,12 +56,10 @@ def get_skills_data():
 
 
 def get_memory_data():
-    # Estimate memory size from hermes state database
-    state_db = os.path.join(HOME, ".hermes", "state.db")
     memory_count = 0
     memory_size = "N/A"
-    if os.path.isfile(state_db):
-        size = os.path.getsize(state_db)
+    if os.path.isfile(STATE_DB):
+        size = os.path.getsize(STATE_DB)
         memory_size = f"{size // 1024} KB"
     # Count from the skills/memory
     memory_skill_dir = os.path.join(HERMES_SKILLS, "memory")
@@ -66,9 +69,8 @@ def get_memory_data():
 
 
 def get_service_status():
-    services = ["hermes-gateway", "hermes-dashboard", "hermes-web-ui"]
     result = []
-    for s in services:
+    for s in SERVICES:
         status = run(f"systemctl is-active {s} 2>/dev/null")
         result.append({"name": s, "status": status if status else "inactive"})
     return result
@@ -151,9 +153,7 @@ def main():
 
 
 def generate_html(history):
-    import sys, importlib
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-    _render = importlib.import_module("scripts.render").generate_html
+    from scripts.render import generate_html as _render
     _render(history)
 
 
