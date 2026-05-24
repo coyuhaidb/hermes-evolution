@@ -50,13 +50,13 @@ def generate_html(history):
     
     version = get_version()
     
-    # 技能分组
+    # 技能分组（带描述）
     skills_by_cat = {}
     for s in skills_list:
         cat = s.get("category", "other")
         if cat not in skills_by_cat:
             skills_by_cat[cat] = []
-        skills_by_cat[cat].append(s["name"])
+        skills_by_cat[cat].append(s)
     
     # 趋势数据（最多30天）
     recent = snapshots[-30:]
@@ -64,13 +64,18 @@ def generate_html(history):
     skill_counts_json = json.dumps([s["skills"]["total"] for s in recent])
     wiki_counts_json = json.dumps([s["wiki"]["pages"] for s in recent])
     
-    # 技能HTML
+    # 技能卡片 HTML
     skills_html = ""
-    for cat, names in sorted(skills_by_cat.items()):
+    for cat, skills in sorted(skills_by_cat.items()):
         cat_display = cat.replace("-", " ").title()
-        skills_html += f'\n          <div class="skills-category"><div class="cat-header">{cat_display}</div><div class="skills-row">'
-        for name in names:
-            skills_html += f'<span class="skill-badge">{name}</span>'
+        skills_html += f'\n          <div class="skills-category"><div class="cat-header">{cat_display} ({len(skills)})</div><div class="skills-grid2">'
+        for s in skills:
+            name = s["name"]
+            desc = s.get("description", "")
+            if desc:
+                skills_html += f'<div class="skill-card"><div class="sk-name">{name}</div><div class="sk-desc">{desc}</div></div>'
+            else:
+                skills_html += f'<div class="skill-card"><div class="sk-name">{name}</div></div>'
         skills_html += '</div></div>'
     
     # 服务HTML
@@ -165,6 +170,11 @@ body{{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-grad
 .skills-row{{display:flex;flex-wrap:wrap;gap:6px}}
 .skill-badge{{font-size:0.8rem;padding:4px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#ccc;transition:all 0.2s ease}}
 .skill-badge:hover{{border-color:rgba(102,126,234,0.4);color:#fff;background:rgba(102,126,234,0.1)}}
+.skills-grid2{{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}}
+.skill-card{{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 14px;transition:all 0.2s ease}}
+.skill-card:hover{{transform:translateY(-2px);border-color:rgba(102,126,234,0.3)}}
+.sk-name{{font-size:0.85rem;font-weight:600;color:#e0e0e0}}
+.sk-desc{{font-size:0.75rem;color:#888;margin-top:4px;line-height:1.4}}
 .services-box{{display:flex;flex-wrap:wrap;gap:12px}}
 .service-item{{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 20px;font-size:0.9rem}}
 .idea-card{{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:16px;transition:all 0.3s ease}}

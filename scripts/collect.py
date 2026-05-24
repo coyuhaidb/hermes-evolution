@@ -45,14 +45,38 @@ def get_skills_data():
             if os.path.isdir(cat_path):
                 for skill in sorted(os.listdir(cat_path)):
                     skill_path = os.path.join(cat_path, skill)
-                    if os.path.isdir(skill_path) and os.path.isfile(os.path.join(skill_path, "SKILL.md")):
-                        mtime = os.path.getmtime(os.path.join(skill_path, "SKILL.md"))
+                    skill_md = os.path.join(skill_path, "SKILL.md")
+                    if os.path.isdir(skill_path) and os.path.isfile(skill_md):
+                        mtime = os.path.getmtime(skill_md)
+                        desc = _parse_skill_description(skill_md)
                         skills.append({
                             "name": skill,
                             "category": cat,
+                            "description": desc,
                             "updated": datetime.fromtimestamp(mtime).strftime("%Y-%m-%d"),
                         })
     return skills
+
+
+def _parse_skill_description(skill_md):
+    """从 SKILL.md 的 YAML 前置元数据中提取 description"""
+    try:
+        with open(skill_md, encoding="utf-8", errors="ignore") as f:
+            lines = f.readlines()
+        in_frontmatter = False
+        for line in lines[:20]:  # 只看前 20 行
+            stripped = line.strip()
+            if stripped == "---":
+                in_frontmatter = not in_frontmatter
+                continue
+            if in_frontmatter and stripped.startswith("description:"):
+                val = stripped[len("description:"):].strip().strip('"').strip("'")
+                if len(val) > 80:
+                    val = val[:77] + "..."
+                return val
+    except Exception:
+        pass
+    return ""
 
 
 def get_memory_data():
