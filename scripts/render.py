@@ -8,7 +8,16 @@ _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from scripts.config import HTML_FILE
+from scripts.config import HTML_FILE, VERSION_FILE
+
+
+def get_version():
+    """读取 VERSION 文件中的版本号"""
+    try:
+        with open(VERSION_FILE) as f:
+            return f.read().strip()
+    except (FileNotFoundError, IOError):
+        return "0.0.0"
 
 
 def generate_html(history):
@@ -31,6 +40,8 @@ def generate_html(history):
     services = latest.get("services", [])
     active_svcs = sum(1 for s in services if s.get("status") == "active")
     mem_size = latest.get("memory", {}).get("size", "N/A")
+    
+    version = get_version()
     
     # 技能分组
     skills_by_cat = {}
@@ -218,7 +229,7 @@ body{{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-grad
 </div>
 
 <div class="footer">
-  <p>Hermes 进化记录 · 每日 9:00 自动更新</p>
+  <p>v{version} · Hermes 进化记录 · 每日 9:00 自动更新</p>
   <p style="margin-top:4px">始于 {first.get('date','')[:10]} · 共 {days_active} 天</p>
 </div>
 

@@ -59,19 +59,19 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 <div class="header">
   <div class="avatar">🧠</div>
   <h1>Hermes 进化记录</h1>
-  <p class="subtitle">AI 能力成长追踪 · 最后更新 2026-05-24 12:58</p>
+  <p class="subtitle">AI 能力成长追踪 · 最后更新 2026-05-24 13:03</p>
 </div>
 
 <div class="stats">
-  <div class="stat-card"><div class="stat-number">84</div><div class="stat-label">技能数</div></div>
+  <div class="stat-card"><div class="stat-number">85</div><div class="stat-label">技能数</div></div>
   <div class="stat-card"><div class="stat-number green">21</div><div class="stat-label">Wiki 页面</div></div>
   <div class="stat-card"><div class="stat-number purple">3</div><div class="stat-label">运行服务</div></div>
-  <div class="stat-card"><div class="stat-number orange">5</div><div class="stat-label">追踪天数</div></div>
+  <div class="stat-card"><div class="stat-number orange">6</div><div class="stat-label">追踪天数</div></div>
 </div>
 
 <div class="evo-card">
   <div class="evo-grid">
-    <div class="evo-item"><div class="evo-icon">📈</div><div class="evo-number">+1</div><div class="evo-label">技能增长</div></div>
+    <div class="evo-item"><div class="evo-icon">📈</div><div class="evo-number">+2</div><div class="evo-label">技能增长</div></div>
     <div class="evo-item"><div class="evo-icon">📚</div><div class="evo-number">+0</div><div class="evo-label">知识增长</div></div>
     <div class="evo-item"><div class="evo-icon">🧠</div><div class="evo-number">12760 KB</div><div class="evo-label">记忆库</div></div>
   </div>
@@ -85,6 +85,13 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 <div class="section">
   <h2 class="section-title"><span>⚡</span> 最近变化</h2>
   <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <div class="tl-date">2026-05-24</div>
+              <div class="tl-text">⚡ skills: <strong>84 → 85</strong></div>
+            </div>
+          </div>
           <div class="tl-item">
             <div class="tl-dot"></div>
             <div class="tl-body">
@@ -114,7 +121,7 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
           <div class="skills-category"><div class="cat-header">Research</div><div class="skills-row"><span class="skill-badge">arxiv</span><span class="skill-badge">blogwatcher</span><span class="skill-badge">llm-wiki</span><span class="skill-badge">polymarket</span><span class="skill-badge">research-paper-writing</span></div></div>
           <div class="skills-category"><div class="cat-header">Smart Home</div><div class="skills-row"><span class="skill-badge">openhue</span></div></div>
           <div class="skills-category"><div class="cat-header">Social Media</div><div class="skills-row"><span class="skill-badge">xurl</span></div></div>
-          <div class="skills-category"><div class="cat-header">Software Development</div><div class="skills-row"><span class="skill-badge">agent-identity-optimization</span><span class="skill-badge">agent-soul-files</span><span class="skill-badge">debugging-hermes-tui-commands</span><span class="skill-badge">hermes-agent-skill-authoring</span><span class="skill-badge">node-inspect-debugger</span><span class="skill-badge">plan</span><span class="skill-badge">python-debugpy</span><span class="skill-badge">requesting-code-review</span><span class="skill-badge">spike</span><span class="skill-badge">subagent-driven-development</span><span class="skill-badge">systematic-debugging</span><span class="skill-badge">test-driven-development</span><span class="skill-badge">writing-plans</span></div></div></div>
+          <div class="skills-category"><div class="cat-header">Software Development</div><div class="skills-row"><span class="skill-badge">agent-identity-optimization</span><span class="skill-badge">agent-soul-files</span><span class="skill-badge">debugging-hermes-tui-commands</span><span class="skill-badge">hermes-agent-skill-authoring</span><span class="skill-badge">node-inspect-debugger</span><span class="skill-badge">plan</span><span class="skill-badge">python-debugpy</span><span class="skill-badge">requesting-code-review</span><span class="skill-badge">spike</span><span class="skill-badge">structured-expert-review</span><span class="skill-badge">subagent-driven-development</span><span class="skill-badge">systematic-debugging</span><span class="skill-badge">test-driven-development</span><span class="skill-badge">writing-plans</span></div></div></div>
 </div>
 
 <div class="section">
@@ -140,8 +147,8 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 </div>
 
 <div class="footer">
-  <p>Hermes 进化记录 · 每日 9:00 自动更新</p>
-  <p style="margin-top:4px">始于 2026-05-24 · 共 5 天</p>
+  <p>v0.3.0 · Hermes 进化记录 · 每日 9:00 自动更新</p>
+  <p style="margin-top:4px">始于 2026-05-24 · 共 6 天</p>
 </div>
 
 <script>
@@ -149,10 +156,10 @@ const ctx=document.getElementById('chart').getContext('2d');
 new Chart(ctx,{
   type:'line',
   data:{
-    labels:["2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24"],
+    labels:["2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24"],
     datasets:[
-      {label:'技能数',data:[83, 83, 84, 84, 84],borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#667eea'},
-      {label:'Wiki 页面',data:[21, 21, 21, 21, 21],borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'}
+      {label:'技能数',data:[83, 83, 84, 84, 84, 85],borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#667eea'},
+      {label:'Wiki 页面',data:[21, 21, 21, 21, 21, 21],borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'}
     ]
   },
   options:{

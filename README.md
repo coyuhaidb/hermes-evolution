@@ -21,8 +21,12 @@ hermes-evolution/
 ├── data/
 │   └── evolution.json     # 历史数据（每日快照）
 ├── scripts/
+│   ├── config.py          # 路径配置
 │   ├── collect.py         # 数据采集（每日定时运行）
-│   └── render.py          # HTML 渲染模板
+│   ├── render.py          # HTML 渲染模板
+│   └── __init__.py
+├── VERSION                # 版本号
+├── CHANGELOG.md           # 更新日志
 ├── README.md
 └── .gitignore
 ```
@@ -50,5 +54,10 @@ hermes-evolution/
 
 ## 版本记录
 
-- v0.2 — 拆分 render.py，优化架构，完善里程碑
-- v0.1 — 初始版本，基于 ytzy.txt 设计规范重做 UI
+查看 [CHANGELOG.md](CHANGELOG.md) 了解完整更新历史。
+
+当前版本记录在 `VERSION` 文件中。升级版本：
+```bash
+echo "0.4.0" > VERSION
+# 然后提交
+```
