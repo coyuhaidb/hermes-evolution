@@ -2,570 +2,169 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hermes 进化日志</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Hermes 进化记录 · 2026-05-24</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
-  :root {
-    --bg: #0d1117;
-    --card: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --text-dim: #8b949e;
-    --accent: #58a6ff;
-    --green: #3fb950;
-    --orange: #d29922;
-    --purple: #bc8cff;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 20px;
-    line-height: 1.6;
-  }
-  .container { max-width: 1100px; margin: 0 auto; }
-  
-  /* Header */
-  header {
-    text-align: center;
-    padding: 40px 0 30px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 30px;
-  }
-  header h1 {
-    font-size: 2.5em;
-    background: linear-gradient(135deg, var(--accent), var(--purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 8px;
-  }
-  header .subtitle { color: var(--text-dim); font-size: 1.1em; }
-  header .live { 
-    display: inline-block;
-    background: var(--green);
-    color: #000;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.75em;
-    font-weight: bold;
-    margin-left: 8px;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-  }
-  
-  /* Stats Grid */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 30px;
-  }
-  .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-  }
-  .stat-card .value {
-    font-size: 2.2em;
-    font-weight: bold;
-    color: var(--accent);
-  }
-  .stat-card .value.green { color: var(--green); }
-  .stat-card .value.purple { color: var(--purple); }
-  .stat-card .value.orange { color: var(--orange); }
-  .stat-card .label { color: var(--text-dim); font-size: 0.85em; margin-top: 4px; }
-  .stat-card .growth { font-size: 0.8em; color: var(--green); margin-top: 2px; }
-  
-  /* Chart */
-  .chart-container {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .chart-container h3 { margin-bottom: 12px; color: var(--text); }
-  
-  /* Timeline */
-  .timeline {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .timeline h3 { margin-bottom: 16px; }
-  .timeline-item {
-    display: flex;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .timeline-item:last-child { border: none; }
-  .timeline-date { color: var(--text-dim); font-size: 0.85em; min-width: 80px; }
-  .timeline-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    background: var(--green);
-    margin-top: 6px;
-    flex-shrink: 0;
-  }
-  .timeline-dot.skill { background: var(--accent); }
-  .timeline-dot.wiki { background: var(--purple); }
-  .timeline-dot.milestone { background: var(--orange); }
-  .timeline-content { color: var(--text); }
-  .timeline-content .tag {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 8px;
-    font-size: 0.75em;
-    margin-right: 6px;
-  }
-  .tag-skill { background: #1f3a5f; color: var(--accent); }
-  .tag-wiki { background: #2d1f5e; color: var(--purple); }
-  .tag-milestone { background: #3d2e00; color: var(--orange); }
-  
-  /* Skills Grid */
-  .skills-section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .skills-section h3 { margin-bottom: 16px; }
-  .skills-cat {
-    margin-bottom: 16px;
-  }
-  .skills-cat h4 {
-    color: var(--accent);
-    margin-bottom: 8px;
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .skills-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-  .skill-tag {
-    background: #1f3a5f;
-    color: var(--accent);
-    padding: 3px 10px;
-    border-radius: 8px;
-    font-size: 0.85em;
-    border: 1px solid #2a4a7f;
-  }
-  
-  /* Services */
-  .services {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
-  }
-  .service-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .service-row:last-child { border: none; }
-  .service-status {
-    display: inline-block;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    margin-right: 8px;
-  }
-  .status-active { background: var(--green); }
-  .status-inactive { background: #484f58; }
-  
-  .footer {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 0.8em;
-    padding: 30px 0;
-  }
-  
-  /* Milestone form */
-  .milestone-form {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
-  }
-  .milestone-form h3 { margin-bottom: 12px; }
-  .milestone-form input, .milestone-form textarea {
-    width: 100%;
-    background: #0d1117;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    color: var(--text);
-    margin-bottom: 8px;
-    font-family: inherit;
-  }
-  .milestone-form button {
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-weight: bold;
-    cursor: pointer;
-  }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradient(135deg,#0a0a0f 0%,#1a1a2e 50%,#16213e 100%);min-height:100vh;color:#e0e0e0;line-height:1.6}
+.header{text-align:center;padding:60px 20px 40px}
+.avatar{width:120px;height:120px;border-radius:50%;margin:0 auto 24px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border:3px solid rgba(102,126,234,0.5);box-shadow:0 0 60px rgba(102,126,234,0.4);animation:pulse 3s ease-in-out infinite;display:flex;align-items:center;justify-content:center;font-size:3rem}
+@keyframes pulse{0%,100%{box-shadow:0 0 60px rgba(102,126,234,0.4)}50%{box-shadow:0 0 80px rgba(102,126,234,0.6)}}
+.header h1{font-size:2.5rem;background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.header .subtitle{color:#888;font-size:1rem;margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;max-width:900px;margin:0 auto 40px;padding:0 20px}
+.stat-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;text-align:center;backdrop-filter:blur(10px);transition:all 0.3s ease}
+.stat-card:hover{transform:translateY(-4px);border-color:rgba(102,126,234,0.5)}
+.stat-number{font-size:2.5rem;font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-number.green{background:linear-gradient(135deg,#34d399,#3fb950);-webkit-background-clip:text;background-clip:text}
+.stat-number.purple{background:linear-gradient(135deg,#a78bfa,#8b5cf6);-webkit-background-clip:text;background-clip:text}
+.stat-number.orange{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;background-clip:text}
+.stat-label{font-size:0.85rem;color:#888;margin-top:4px}
+.evo-card{max-width:900px;margin:0 auto 40px;padding:32px 20px;background:linear-gradient(135deg,rgba(102,126,234,0.1),rgba(118,75,162,0.1));border:1px solid rgba(102,126,234,0.2);border-radius:20px;text-align:center}
+.evo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:700px;margin:0 auto}
+.evo-item{text-align:center}
+.evo-icon{font-size:2rem;margin-bottom:8px}
+.evo-number{font-size:1.8rem;font-weight:700;color:#fff}
+.evo-label{font-size:0.8rem;color:#888}
+.section{max-width:1000px;margin:0 auto 50px;padding:0 20px}
+.section-title{display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:600;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1)}
+.chart-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:30px}
+.timeline{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;position:relative}
+.timeline::before{content:'';position:absolute;left:32px;top:60px;bottom:30px;width:2px;background:linear-gradient(to bottom,#667eea,#764ba2,transparent)}
+.tl-item{display:flex;gap:16px;padding:8px 0 16px;position:relative}
+.tl-dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 0 16px rgba(102,126,234,0.4);flex-shrink:0;margin-top:4px;z-index:1}
+.tl-dot.ms{background:linear-gradient(135deg,#f093fb,#f59e0b)}
+.tl-body{flex:1}
+.tl-date{font-size:0.8rem;color:#666}
+.tl-text{font-size:0.95rem;color:#ccc;margin:2px 0}
+.tl-desc{font-size:0.85rem;color:#888}
+.cat-header{font-size:0.8rem;font-weight:600;color:#a5b4fc;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.skills-row{display:flex;flex-wrap:wrap;gap:6px}
+.skill-badge{font-size:0.8rem;padding:4px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;color:#ccc;transition:all 0.2s ease}
+.skill-badge:hover{border-color:rgba(102,126,234,0.4);color:#fff;background:rgba(102,126,234,0.1)}
+.services-box{display:flex;flex-wrap:wrap;gap:12px}
+.service-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:12px 20px;font-size:0.9rem}
+.idea-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;margin-bottom:16px;transition:all 0.3s ease}
+.idea-card:hover{transform:translateY(-2px);border-color:rgba(102,126,234,0.3)}
+.idea-card h4{color:#a5b4fc;font-size:1rem;margin-bottom:8px}
+.idea-card p{color:#888;font-size:0.9rem}
+.footer{text-align:center;padding:40px 20px;color:#555;font-size:0.8rem}
+@media(max-width:600px){.header h1{font-size:1.8rem}.stats{grid-template-columns:repeat(2,1fr)}.evo-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>Hermes 进化日志</h1>
-    <div class="subtitle">
-      我的 AI 助手成长记录
-      <span class="live">● LIVE</span>
-    </div>
-    <div style="margin-top: 8px; font-size: 0.85em; color: var(--text-dim);">
-      最后更新：2026-05-24 12:37 ｜ 
-      已记录 1 天 ｜ 
-      83 个技能
-    </div>
-  </header>
-  
-  <!-- 统计面板 -->
-  <div class="stats">
-    <div class="stat-card">
-      <div class="value">83</div>
-      <div class="label">技能数</div>
-      <div class="growth">+0 累计</div>
-    </div>
-    <div class="stat-card">
-      <div class="value green">21</div>
-      <div class="label">Wiki 页面</div>
-      <div class="growth">+0 累计</div>
-    </div>
-    <div class="stat-card">
-      <div class="value purple">10624 KB</div>
-      <div class="label">记忆库</div>
-    </div>
-    <div class="stat-card">
-      <div class="value orange">1</div>
-      <div class="label">追踪天数</div>
-    </div>
+
+<div class="header">
+  <div class="avatar">🧠</div>
+  <h1>Hermes 进化记录</h1>
+  <p class="subtitle">AI 能力成长追踪 · 最后更新 2026-05-24 12:50</p>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-number">84</div><div class="stat-label">技能数</div></div>
+  <div class="stat-card"><div class="stat-number green">21</div><div class="stat-label">Wiki 页面</div></div>
+  <div class="stat-card"><div class="stat-number purple">3</div><div class="stat-label">运行服务</div></div>
+  <div class="stat-card"><div class="stat-number orange">4</div><div class="stat-label">追踪天数</div></div>
+</div>
+
+<div class="evo-card">
+  <div class="evo-grid">
+    <div class="evo-item"><div class="evo-icon">📈</div><div class="evo-number">+1</div><div class="evo-label">技能增长</div></div>
+    <div class="evo-item"><div class="evo-icon">📚</div><div class="evo-number">+0</div><div class="evo-label">知识增长</div></div>
+    <div class="evo-item"><div class="evo-icon">🧠</div><div class="evo-number">11608 KB</div><div class="evo-label">记忆库</div></div>
   </div>
-  
-  <!-- 趋势图 -->
-  <div class="chart-container">
-    <h3>📈 成长趋势（近 30 天）</h3>
-    <canvas id="growthChart" height="80"></canvas>
-  </div>
-  
-  <!-- 最近变化 -->
+</div>
+
+<div class="section">
+  <h2 class="section-title"><span>📈</span> 成长趋势</h2>
+  <div class="chart-box"><canvas id="chart" height="80"></canvas></div>
+</div>
+
+<div class="section">
+  <h2 class="section-title"><span>⚡</span> 最近变化</h2>
   <div class="timeline">
-    <h3>⚡ 最近变化</h3>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <div class="tl-date">2026-05-24</div>
+              <div class="tl-text">⚡ skills: <strong>83 → 84</strong></div>
+            </div>
+          </div></div>
+</div>
 
-    <div class="timeline-item">
-      <div class="timeline-content" style="color: var(--text-dim);">
-        暂无变化，新的进化将从明天开始记录
-      </div>
-    </div>
+<div class="section">
+  <h2 class="section-title"><span>🛠️</span> 已掌握的 Skills</h2>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px">
+          <div class="skills-category"><div class="cat-header">Apple</div><div class="skills-row"><span class="skill-badge">apple-notes</span><span class="skill-badge">apple-reminders</span><span class="skill-badge">findmy</span><span class="skill-badge">imessage</span><span class="skill-badge">macos-computer-use</span></div></div>
+          <div class="skills-category"><div class="cat-header">Autonomous Ai Agents</div><div class="skills-row"><span class="skill-badge">claude-code</span><span class="skill-badge">codex</span><span class="skill-badge">hermes-agent</span><span class="skill-badge">kanban-codex-lane</span><span class="skill-badge">opencode</span></div></div>
+          <div class="skills-category"><div class="cat-header">Creative</div><div class="skills-row"><span class="skill-badge">architecture-diagram</span><span class="skill-badge">ascii-art</span><span class="skill-badge">ascii-video</span><span class="skill-badge">baoyu-article-illustrator</span><span class="skill-badge">baoyu-comic</span><span class="skill-badge">baoyu-infographic</span><span class="skill-badge">claude-design</span><span class="skill-badge">comfyui</span><span class="skill-badge">creative-ideation</span><span class="skill-badge">design-md</span><span class="skill-badge">excalidraw</span><span class="skill-badge">humanizer</span><span class="skill-badge">manim-video</span><span class="skill-badge">p5js</span><span class="skill-badge">pixel-art</span><span class="skill-badge">popular-web-designs</span><span class="skill-badge">pretext</span><span class="skill-badge">sketch</span><span class="skill-badge">songwriting-and-ai-music</span><span class="skill-badge">touchdesigner-mcp</span></div></div>
+          <div class="skills-category"><div class="cat-header">Data Science</div><div class="skills-row"><span class="skill-badge">jupyter-live-kernel</span></div></div>
+          <div class="skills-category"><div class="cat-header">Devops</div><div class="skills-row"><span class="skill-badge">hermes-background-service</span><span class="skill-badge">hermes-web-services</span><span class="skill-badge">kanban-orchestrator</span><span class="skill-badge">kanban-worker</span><span class="skill-badge">linux-beginner-setup</span><span class="skill-badge">webhook-subscriptions</span></div></div>
+          <div class="skills-category"><div class="cat-header">Email</div><div class="skills-row"><span class="skill-badge">himalaya</span></div></div>
+          <div class="skills-category"><div class="cat-header">Gaming</div><div class="skills-row"><span class="skill-badge">minecraft-modpack-server</span><span class="skill-badge">pokemon-player</span></div></div>
+          <div class="skills-category"><div class="cat-header">Github</div><div class="skills-row"><span class="skill-badge">codebase-inspection</span><span class="skill-badge">github-auth</span><span class="skill-badge">github-code-review</span><span class="skill-badge">github-issues</span><span class="skill-badge">github-pr-workflow</span><span class="skill-badge">github-repo-management</span></div></div>
+          <div class="skills-category"><div class="cat-header">Mcp</div><div class="skills-row"><span class="skill-badge">native-mcp</span></div></div>
+          <div class="skills-category"><div class="cat-header">Media</div><div class="skills-row"><span class="skill-badge">gif-search</span><span class="skill-badge">heartmula</span><span class="skill-badge">songsee</span><span class="skill-badge">spotify</span><span class="skill-badge">youtube-content</span></div></div>
+          <div class="skills-category"><div class="cat-header">Mlops</div><div class="skills-row"><span class="skill-badge">huggingface-hub</span></div></div>
+          <div class="skills-category"><div class="cat-header">Note Taking</div><div class="skills-row"><span class="skill-badge">obsidian</span></div></div>
+          <div class="skills-category"><div class="cat-header">Productivity</div><div class="skills-row"><span class="skill-badge">airtable</span><span class="skill-badge">google-workspace</span><span class="skill-badge">linear</span><span class="skill-badge">maps</span><span class="skill-badge">nano-pdf</span><span class="skill-badge">notion</span><span class="skill-badge">ocr-and-documents</span><span class="skill-badge">powerpoint</span><span class="skill-badge">teams-meeting-pipeline</span></div></div>
+          <div class="skills-category"><div class="cat-header">Red Teaming</div><div class="skills-row"><span class="skill-badge">godmode</span></div></div>
+          <div class="skills-category"><div class="cat-header">Research</div><div class="skills-row"><span class="skill-badge">arxiv</span><span class="skill-badge">blogwatcher</span><span class="skill-badge">llm-wiki</span><span class="skill-badge">polymarket</span><span class="skill-badge">research-paper-writing</span></div></div>
+          <div class="skills-category"><div class="cat-header">Smart Home</div><div class="skills-row"><span class="skill-badge">openhue</span></div></div>
+          <div class="skills-category"><div class="cat-header">Social Media</div><div class="skills-row"><span class="skill-badge">xurl</span></div></div>
+          <div class="skills-category"><div class="cat-header">Software Development</div><div class="skills-row"><span class="skill-badge">agent-identity-optimization</span><span class="skill-badge">agent-soul-files</span><span class="skill-badge">debugging-hermes-tui-commands</span><span class="skill-badge">hermes-agent-skill-authoring</span><span class="skill-badge">node-inspect-debugger</span><span class="skill-badge">plan</span><span class="skill-badge">python-debugpy</span><span class="skill-badge">requesting-code-review</span><span class="skill-badge">spike</span><span class="skill-badge">subagent-driven-development</span><span class="skill-badge">systematic-debugging</span><span class="skill-badge">test-driven-development</span><span class="skill-badge">writing-plans</span></div></div></div>
+</div>
+
+<div class="section">
+  <h2 class="section-title"><span>🔧</span> 系统服务</h2>
+  <div class="services-box"><div class="service-item"><span>🟢 hermes-gateway</span></div><div class="service-item"><span>🟢 hermes-dashboard</span></div><div class="service-item"><span>🟢 hermes-web-ui</span></div></div>
+</div>
+
+<div class="section">
+  <h2 class="section-title"><span>🏆</span> 里程碑</h2>
+  <div class="timeline"><div style="color:#666;padding:16px;text-align:center">暂无里程碑 · 告诉 Hermes 添加一个吧</div></div>
+</div>
+
+<div class="section">
+  <h2 class="section-title"><span>🔮</span> 未来方向</h2>
+  <div class="idea-card">
+    <h4>📦 接入更多消息平台</h4>
+    <p>配置 Telegram / Discord 等平台</p>
   </div>
-  
-  <!-- 技能分类 -->
-  <div class="skills-section">
-    <h3>🧠 已掌握的技能</h3>
-
-    <div class="skills-cat">
-      <h4>📁 apple</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">apple-notes</span>
-        <span class="skill-tag">apple-reminders</span>
-        <span class="skill-tag">findmy</span>
-        <span class="skill-tag">imessage</span>
-        <span class="skill-tag">macos-computer-use</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 autonomous-ai-agents</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">claude-code</span>
-        <span class="skill-tag">codex</span>
-        <span class="skill-tag">hermes-agent</span>
-        <span class="skill-tag">kanban-codex-lane</span>
-        <span class="skill-tag">opencode</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 creative</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">architecture-diagram</span>
-        <span class="skill-tag">ascii-art</span>
-        <span class="skill-tag">ascii-video</span>
-        <span class="skill-tag">baoyu-article-illustrator</span>
-        <span class="skill-tag">baoyu-comic</span>
-        <span class="skill-tag">baoyu-infographic</span>
-        <span class="skill-tag">claude-design</span>
-        <span class="skill-tag">comfyui</span>
-        <span class="skill-tag">creative-ideation</span>
-        <span class="skill-tag">design-md</span>
-        <span class="skill-tag">excalidraw</span>
-        <span class="skill-tag">humanizer</span>
-        <span class="skill-tag">manim-video</span>
-        <span class="skill-tag">p5js</span>
-        <span class="skill-tag">pixel-art</span>
-        <span class="skill-tag">popular-web-designs</span>
-        <span class="skill-tag">pretext</span>
-        <span class="skill-tag">sketch</span>
-        <span class="skill-tag">songwriting-and-ai-music</span>
-        <span class="skill-tag">touchdesigner-mcp</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 data-science</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">jupyter-live-kernel</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 devops</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">hermes-background-service</span>
-        <span class="skill-tag">hermes-web-services</span>
-        <span class="skill-tag">kanban-orchestrator</span>
-        <span class="skill-tag">kanban-worker</span>
-        <span class="skill-tag">linux-beginner-setup</span>
-        <span class="skill-tag">webhook-subscriptions</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 email</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">himalaya</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 gaming</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">minecraft-modpack-server</span>
-        <span class="skill-tag">pokemon-player</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 github</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">codebase-inspection</span>
-        <span class="skill-tag">github-auth</span>
-        <span class="skill-tag">github-code-review</span>
-        <span class="skill-tag">github-issues</span>
-        <span class="skill-tag">github-pr-workflow</span>
-        <span class="skill-tag">github-repo-management</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 mcp</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">native-mcp</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 media</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">gif-search</span>
-        <span class="skill-tag">heartmula</span>
-        <span class="skill-tag">songsee</span>
-        <span class="skill-tag">spotify</span>
-        <span class="skill-tag">youtube-content</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 mlops</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">huggingface-hub</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 note-taking</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">obsidian</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 productivity</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">airtable</span>
-        <span class="skill-tag">google-workspace</span>
-        <span class="skill-tag">linear</span>
-        <span class="skill-tag">maps</span>
-        <span class="skill-tag">nano-pdf</span>
-        <span class="skill-tag">notion</span>
-        <span class="skill-tag">ocr-and-documents</span>
-        <span class="skill-tag">powerpoint</span>
-        <span class="skill-tag">teams-meeting-pipeline</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 red-teaming</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">godmode</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 research</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">arxiv</span>
-        <span class="skill-tag">blogwatcher</span>
-        <span class="skill-tag">llm-wiki</span>
-        <span class="skill-tag">polymarket</span>
-        <span class="skill-tag">research-paper-writing</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 smart-home</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">openhue</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 social-media</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">xurl</span>
-      </div>
-    </div>
-
-    <div class="skills-cat">
-      <h4>📁 software-development</h4>
-      <div class="skills-tags">
-        <span class="skill-tag">agent-identity-optimization</span>
-        <span class="skill-tag">debugging-hermes-tui-commands</span>
-        <span class="skill-tag">hermes-agent-skill-authoring</span>
-        <span class="skill-tag">node-inspect-debugger</span>
-        <span class="skill-tag">plan</span>
-        <span class="skill-tag">python-debugpy</span>
-        <span class="skill-tag">requesting-code-review</span>
-        <span class="skill-tag">spike</span>
-        <span class="skill-tag">subagent-driven-development</span>
-        <span class="skill-tag">systematic-debugging</span>
-        <span class="skill-tag">test-driven-development</span>
-        <span class="skill-tag">writing-plans</span>
-      </div>
-    </div>
-
+  <div class="idea-card">
+    <h4>🧩 集成更多工具链</h4>
+    <p>gstack、Oh My Pi 等生态工具集成</p>
   </div>
-  
-  <!-- 服务状态 -->
-  <div class="services">
-    <h3>🔧 系统服务</h3>
+</div>
 
-    <div class="service-row">
-      <span><span class="service-status status-active"></span>hermes-gateway</span>
-      <span>🟢 运行中</span>
-    </div>
-    <div class="service-row">
-      <span><span class="service-status status-active"></span>hermes-dashboard</span>
-      <span>🟢 运行中</span>
-    </div>
-    <div class="service-row">
-      <span><span class="service-status status-active"></span>hermes-web-ui</span>
-      <span>🟢 运行中</span>
-    </div>
-  </div>
-  
-  <!-- 里程碑（可手动添加） -->
-  <div class="milestone-form">
-    <h3>🏆 添加里程碑</h3>
-    <p style="color: var(--text-dim); font-size: 0.9em; margin-bottom: 12px;">
-      想记录一个重要的进化时刻？告诉 Hermes 就行，它会帮你加到这里。
-    </p>
-  </div>
-  
-  <footer class="footer">
-    Hermes Evolution Log · 由每日定时任务自动更新<br>
-    始于 {first.get("date", TODAY)[:10]}
-  </footer>
+<div class="footer">
+  <p>Hermes 进化记录 · 每日 9:00 自动更新</p>
+  <p style="margin-top:4px">始于 2026-05-24 · 共 4 天</p>
 </div>
 
 <script>
-const ctx = document.getElementById('growthChart').getContext('2d');
-new Chart(ctx, {{
-  type: 'line',
-  data: {{
-    labels: {dates_json},
-    datasets: [
-      {{
-        label: '技能数',
-        data: {skill_counts_json},
-        borderColor: '#58a6ff',
-        backgroundColor: 'rgba(88, 166, 255, 0.1)',
-        tension: 0.3,
-        fill: true,
-        pointRadius: 2,
-      }},
-      {{
-        label: 'Wiki 页面',
-        data: {wiki_counts_json},
-        borderColor: '#bc8cff',
-        backgroundColor: 'rgba(188, 140, 255, 0.1)',
-        tension: 0.3,
-        fill: true,
-        pointRadius: 2,
-        yAxisID: 'y1',
-      }}
+const ctx=document.getElementById('chart').getContext('2d');
+new Chart(ctx,{
+  type:'line',
+  data:{
+    labels:["2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24"],
+    datasets:[
+      {label:'技能数',data:[83, 83, 84, 84],borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#667eea'},
+      {label:'Wiki 页面',data:[21, 21, 21, 21],borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'}
     ]
-  }},
-  options: {{
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {{
-      legend: {{
-        labels: {{ color: '#8b949e', font: {{ size: 12 }} }},
-        position: 'top',
-      }}
-    }},
-    scales: {{
-      x: {{
-        ticks: {{ color: '#8b949e', maxTicksLimit: 10 }},
-        grid: {{ color: '#30363d' }},
-      }},
-      y: {{
-        beginAtZero: true,
-        ticks: {{ color: '#8b949e', stepSize: 1 }},
-        grid: {{ color: '#30363d' }},
-      }},
-      y1: {{
-        beginAtZero: true,
-        position: 'right',
-        ticks: {{ color: '#8b949e', stepSize: 1 }},
-        grid: {{ display: false }},
-      }}
-    }}
-  }}
-}});
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{labels:{color:'#888',font:{size:12}},position:'top'}},
+    scales:{
+      x:{ticks:{color:'#666',maxTicksLimit:10},grid:{color:'rgba(255,255,255,0.05)'}},
+      y:{beginAtZero:true,ticks:{color:'#666'},grid:{color:'rgba(255,255,255,0.05)'}},
+      y1:{beginAtZero:true,position:'right',ticks:{color:'#666'},grid:{display:false}}
+    }
+  }
+});
 </script>
 </body>
 </html>
