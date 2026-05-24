@@ -26,8 +26,14 @@ TODAY = NOW.strftime("%Y-%m-%d %H:%M")
 def run(cmd):
     try:
         r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=15)
+        if r.returncode != 0 and r.stderr.strip():
+            print(f"  ⚠️ 命令失败: {cmd[:60]} → {r.stderr.strip()[:100]}")
         return r.stdout.strip()
-    except Exception:
+    except subprocess.TimeoutExpired:
+        print(f"  ⚠️ 命令超时: {cmd[:60]}")
+        return "N/A"
+    except Exception as e:
+        print(f"  ⚠️ 命令异常: {cmd[:60]} → {e}")
         return "N/A"
 
 
@@ -172,6 +178,12 @@ def main():
     
     # 保存数据
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+    # 初始化未来方向（如果没有的话）
+    if "future_plans" not in history:
+        history["future_plans"] = [
+            {"title": "📦 接入更多消息平台", "desc": "配置 Telegram / Discord 等平台"},
+            {"title": "🧩 集成更多工具链", "desc": "gstack、Oh My Pi 等生态工具集成"},
+        ]
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
     

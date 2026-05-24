@@ -64,15 +64,15 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 <div class="header">
   <div class="avatar">🧠</div>
   <h1>Hermes 进化记录</h1>
-  <p class="subtitle">AI 能力成长追踪 · 最后更新 2026-05-24 13:21</p>
+  <p class="subtitle">AI 能力成长追踪 · 最后更新 2026-05-24 13:29</p>
 </div>
 
 <div class="stats">
   <div class="stat-card"><div class="stat-number">86</div><div class="stat-label">技能数</div></div>
   <div class="stat-card"><div class="stat-number green">21</div><div class="stat-label">Wiki 页面</div></div>
   <div class="stat-card"><div class="stat-number purple">3</div><div class="stat-label">运行服务</div></div>
-  <div class="stat-card"><div class="stat-number orange">12</div><div class="stat-label">追踪天数</div></div>
-  <div class="stat-card"><div class="stat-number" style="background:linear-gradient(135deg,#f093fb,#f59e0b);-webkit-background-clip:text;background-clip:text">6</div><div class="stat-label">Git 提交</div></div>
+  <div class="stat-card"><div class="stat-number orange">14</div><div class="stat-label">追踪天数</div></div>
+  <div class="stat-card"><div class="stat-number" style="background:linear-gradient(135deg,#f093fb,#f59e0b);-webkit-background-clip:text;background-clip:text">7</div><div class="stat-label">Git 提交</div></div>
   <div class="stat-card"><div class="stat-number" style="background:linear-gradient(135deg,#34d399,#3fb950);-webkit-background-clip:text;background-clip:text">22</div><div class="stat-label">原始资料</div></div>
 </div>
 
@@ -88,9 +88,9 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 <div class="section">
   <h2 class="section-title"><span>💻</span> 系统状态</h2>
   <div style="display:flex;flex-wrap:wrap;gap:12px">
-    <div class="service-item">⏱ 运行 3 hours, 28 minutes</div>
+    <div class="service-item">⏱ 运行 3 hours, 36 minutes</div>
     <div class="service-item">💾 磁盘 1%</div>
-    <div class="service-item">📦 6 次提交</div>
+    <div class="service-item">📦 7 次提交</div>
     <div class="service-item">📄 22 篇资料</div>
   </div>
 </div>
@@ -103,6 +103,13 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 <div class="section">
   <h2 class="section-title"><span>⚡</span> 最近变化</h2>
   <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <div class="tl-date">2026-05-24</div>
+              <div class="tl-text">⚡ commits: <strong>6 → 7</strong></div>
+            </div>
+          </div>
           <div class="tl-item">
             <div class="tl-dot"></div>
             <div class="tl-body">
@@ -182,19 +189,12 @@ body{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-gradi
 
 <div class="section">
   <h2 class="section-title"><span>🔮</span> 未来方向</h2>
-  <div class="idea-card">
-    <h4>📦 接入更多消息平台</h4>
-    <p>配置 Telegram / Discord 等平台</p>
-  </div>
-  <div class="idea-card">
-    <h4>🧩 集成更多工具链</h4>
-    <p>gstack、Oh My Pi 等生态工具集成</p>
-  </div>
+  <div class="idea-card"><h4>📦 接入更多消息平台</h4><p>配置 Telegram / Discord 等平台</p></div><div class="idea-card"><h4>🧩 集成更多工具链</h4><p>gstack、Oh My Pi 等生态工具集成</p></div>
 </div>
 
 <div class="footer">
-  <p>v0.5.0 · Hermes 进化记录 · 每日 9:00 自动更新</p>
-  <p style="margin-top:4px">始于 2026-05-24 · 共 12 天</p>
+  <p>v0.6.0 · Hermes 进化记录 · 每日 9:00 自动更新</p>
+  <p style="margin-top:4px">始于 2026-05-24 · 共 14 天</p>
 </div>
 
 <script>
@@ -202,10 +202,11 @@ const ctx=document.getElementById('chart').getContext('2d');
 new Chart(ctx,{
   type:'line',
   data:{
-    labels:["2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24"],
+    labels:["2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24", "2026-05-24"],
     datasets:[
-      {label:'技能数',data:[83, 83, 84, 84, 84, 85, 86, 86, 86, 86, 86, 86],borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#667eea'},
-      {label:'Wiki 页面',data:[21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21],borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'}
+      {label:'技能数',data:[83, 83, 84, 84, 84, 85, 86, 86, 86, 86, 86, 86, 86, 86],borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#667eea'},
+      {label:'Wiki 页面',data:[21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21],borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'},
+      {label:'Git 提交',data:[0, 0, 0, 0, 0, 0, 4, 5, 6, 6, 6, 6, 7, 7],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#34d399',yAxisID:'y2'}
     ]
   },
   options:{
@@ -214,7 +215,8 @@ new Chart(ctx,{
     scales:{
       x:{ticks:{color:'#666',maxTicksLimit:10},grid:{color:'rgba(255,255,255,0.05)'}},
       y:{beginAtZero:true,ticks:{color:'#666'},grid:{color:'rgba(255,255,255,0.05)'}},
-      y1:{beginAtZero:true,position:'right',ticks:{color:'#666'},grid:{display:false}}
+      y1:{beginAtZero:true,position:'right',ticks:{color:'#666'},grid:{display:false}},
+      y2:{beginAtZero:true,position:'right',ticks:{color:'#666'},grid:{display:false},overlay:true}
     }
   }
 });

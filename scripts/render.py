@@ -196,6 +196,7 @@ def generate_html(history):
     dates_json = json.dumps([s["date"][:10] for s in recent])
     skill_counts_json = json.dumps([s["skills"]["total"] for s in recent])
     wiki_counts_json = json.dumps([s["wiki"]["pages"] for s in recent])
+    commit_counts_json = json.dumps([int(s.get("system", {}).get("commits", 0) or 0) for s in recent])
     
     # 技能卡片 HTML
     skills_html = ""
@@ -253,6 +254,13 @@ def generate_html(history):
             </div>
           </div>'''
         for m in milestones[-10:]
+    )
+    
+    # 未来方向
+    plans = history.get("future_plans", [])
+    plans_html = "".join(
+        f'<div class="idea-card"><h4>{p.get("title","")}</h4><p>{p.get("desc","")}</p></div>'
+        for p in plans
     )
     
     html = f"""<!DOCTYPE html>
@@ -379,14 +387,7 @@ body{{font-family:'Noto Sans SC',-apple-system,sans-serif;background:linear-grad
 
 <div class="section">
   <h2 class="section-title"><span>🔮</span> 未来方向</h2>
-  <div class="idea-card">
-    <h4>📦 接入更多消息平台</h4>
-    <p>配置 Telegram / Discord 等平台</p>
-  </div>
-  <div class="idea-card">
-    <h4>🧩 集成更多工具链</h4>
-    <p>gstack、Oh My Pi 等生态工具集成</p>
-  </div>
+  {plans_html if plans_html else '<div style="color:#666;padding:16px;text-align:center">暂无计划</div>'}
 </div>
 
 <div class="footer">
@@ -402,7 +403,8 @@ new Chart(ctx,{{
     labels:{dates_json},
     datasets:[
       {{label:'技能数',data:{skill_counts_json},borderColor:'#667eea',backgroundColor:'rgba(102,126,234,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#667eea'}},
-      {{label:'Wiki 页面',data:{wiki_counts_json},borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'}}
+      {{label:'Wiki 页面',data:{wiki_counts_json},borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#a78bfa',yAxisID:'y1'}},
+      {{label:'Git 提交',data:{commit_counts_json},borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.1)',tension:0.3,fill:true,pointRadius:3,pointBackgroundColor:'#34d399',yAxisID:'y2'}}
     ]
   }},
   options:{{
@@ -411,7 +413,8 @@ new Chart(ctx,{{
     scales:{{
       x:{{ticks:{{color:'#666',maxTicksLimit:10}},grid:{{color:'rgba(255,255,255,0.05)'}}}},
       y:{{beginAtZero:true,ticks:{{color:'#666'}},grid:{{color:'rgba(255,255,255,0.05)'}}}},
-      y1:{{beginAtZero:true,position:'right',ticks:{{color:'#666'}},grid:{{display:false}}}}
+      y1:{{beginAtZero:true,position:'right',ticks:{{color:'#666'}},grid:{{display:false}}}},
+      y2:{{beginAtZero:true,position:'right',ticks:{{color:'#666'}},grid:{{display:false}},overlay:true}}
     }}
   }}
 }});
