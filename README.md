@@ -6,7 +6,12 @@
 
 ## 快速查看
 
-Windows 浏览器打开：
+在线访问（GitHub Pages）：
+```
+https://coyuhaidb.github.io/hermes-evolution/
+```
+
+Windows 浏览器打开本地文件：
 ```
 \\wsl.localhost\Ubuntu-24.04\home\rng\projects\hermes-evolution\index.html
 ```
