@@ -23,7 +23,7 @@ GitHub Pages 备份存档：[https://coyuhaidb.github.io/hermes-evolution/](http
 |------|------|
 | **Python** | 数据采集 + 消息组装 |
 | **larksuite/cli** | 飞书消息推送（官方 CLI，12.5k ⭐） |
-| **飞书群机器人** | 消息展示载体 |
+| **飞书群** | 消息展示载体 |
 
 ## 项目结构
 
@@ -34,8 +34,9 @@ hermes-evolution/
 ├── scripts/
 │   ├── config.py          # 路径配置 + 飞书配置
 │   ├── collect.py         # 数据采集（每日定时运行）
-│   ├── render.py          # HTML 渲染（备用）
-│   └── push_feishu.py     # 🔥 飞书推送（主要展示方式）
+│   ├── feishu.py          # 飞书推送（共用模块）
+│   ├── push_feishu.py     # 日报组装 + 推送
+│   └── monitor.py         # 异常监控告警
 ├── VERSION                # 版本号
 ├── CHANGELOG.md           # 更新日志
 └── README.md
@@ -64,8 +65,9 @@ hermes-evolution/
 
 每天 9:00 由 Hermes 定时任务自动执行：
 1. 采集数据 → `evolution.json`
-2. 组装消息 → 推送到飞书群
-3. 同步到 GitHub Pages（备份）
+2. 组装消息 → 推送到飞书群「消息推送」
+
+GitHub 仅作为代码备份和版本管理。每天还有系统监控每 30 分钟检查一次服务状态。
 
 ## 版本记录
 
