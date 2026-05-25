@@ -31,10 +31,18 @@ def sparkline(values):
 
 
 def extract_trends(snapshots):
-    """从快照中提取趋势数据"""
+    """从快照中提取趋势数据（按天去重，每天取最后一条）"""
+    # 按日期分组，取每天最后一条
+    daily = {}
+    for s in snapshots:
+        day = s["date"][:10]  # YYYY-MM-DD
+        daily[day] = s  # 后面的覆盖前面的，最后的就是每天最后一条
+    sorted_days = sorted(daily.keys())
+
     skills = []
     wikis = []
-    for s in snapshots:
+    for day in sorted_days:
+        s = daily[day]
         skills.append(s["skills"]["total"])
         wikis.append(s["wiki"]["pages"])
     return skills, wikis
@@ -45,7 +53,6 @@ def build_markdown(data):
     snapshots = data.get("snapshots", [])
     plans = data.get("future_plans", [])
     today = datetime.now().strftime("%m/%d")
-    total_snapshots = len(snapshots)
     latest = snapshots[-1] if snapshots else {}
     changes = latest.get("changes_since_last", {})
 
@@ -129,7 +136,8 @@ def build_markdown(data):
         lines.append("")
 
     # ── 页脚 ──
-    lines.append(f"_📅 已记录 {total_snapshots} 天_")
+    unique_days = len(set(s["date"][:10] for s in snapshots))
+    lines.append(f"_📅 已记录 {unique_days} 天_")
 
     return "\n".join(lines)
 
