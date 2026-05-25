@@ -16,3 +16,7 @@ STATE_DB = os.path.join(HOME, ".hermes", "state.db")
 
 # 需要检查运行状态的服务列表
 SERVICES = ["hermes-gateway", "hermes-dashboard", "hermes-web-ui"]
+
+# 飞书推送配置
+FEISHU_CHAT_ID = "oc_36d64f1bf4f4e4492295b4a59eb55dc5"
+LARK_CLI = os.path.expanduser("~/.local/bin/lark-cli")
