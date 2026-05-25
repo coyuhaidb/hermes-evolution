@@ -101,8 +101,8 @@ def build_alert(alerts):
     now = datetime.now().strftime("%m/%d %H:%M")
     lines = [f"**🚨 系统告警 · {now}**\n"]
 
-    for level, icon, msg in alerts:
-        lines.append(f"{icon} **{level}** {msg}")
+    for level, msg in alerts:
+        lines.append(f"{level} {msg}")
 
     lines.append(f"\n_🕐 {datetime.now().strftime('%H:%M:%S')}_")
     return "\n".join(lines)
@@ -147,6 +147,9 @@ def main():
                 alerts.append(("🔴 高危", f"**{name}** ({svc}) 已停止"))
             elif status == "inactive":
                 alerts.append(("🟡 警告", f"**{name}** ({svc}) 未运行"))
+        elif prev != "active" and svc in prev_services:
+            # 从异常→正常，恢复通知
+            alerts.append(("✅ 恢复", f"**{name}** ({svc}) 已恢复"))
 
     # ── 2. 磁盘检查 ──
     disk_pct, disk_used = check_disk()
@@ -178,8 +181,8 @@ def main():
         msg = build_alert(alerts)
         print("=" * 40)
         print("🚨 发现异常:")
-        for level, icon, title, detail in alerts:
-            print(f"  {icon} {title}: {detail}")
+        for level, msg in alerts:
+            print(f"  {level} {msg}")
         print("=" * 40)
         push_alert(msg)
     else:
