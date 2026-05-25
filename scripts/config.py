@@ -6,7 +6,6 @@ HOME = os.environ["HOME"]
 # 项目路径
 PROJECT_DIR = os.path.join(HOME, "projects", "hermes-evolution")
 DATA_FILE = os.path.join(PROJECT_DIR, "data", "evolution.json")
-HTML_FILE = os.path.join(PROJECT_DIR, "index.html")
 VERSION_FILE = os.path.join(PROJECT_DIR, "VERSION")
 
 # 数据采集目标路径

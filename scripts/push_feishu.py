@@ -3,7 +3,6 @@
 
 import json
 import os
-import subprocess
 import sys
 from datetime import datetime
 
@@ -11,7 +10,8 @@ _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from scripts.config import DATA_FILE, FEISHU_CHAT_ID, LARK_CLI
+from scripts.config import DATA_FILE
+from scripts.feishu import send_markdown
 
 
 def load_data():
@@ -142,36 +142,6 @@ def build_markdown(data):
     return "\n".join(lines)
 
 
-def send_message(markdown_text):
-    """通过 lark-cli 发送消息到飞书群"""
-    cmd = [
-        LARK_CLI, "im", "+messages-send",
-        "--chat-id", FEISHU_CHAT_ID,
-        "--markdown", markdown_text,
-    ]
-
-    result = subprocess.run(
-        cmd,
-        capture_output=True, text=True, timeout=30,
-    )
-
-    if result.returncode != 0:
-        print(f"❌ 推送失败: {result.stderr}")
-        return False
-
-    try:
-        resp = json.loads(result.stdout)
-        if resp.get("ok"):
-            print(f"✅ 推送成功 (message_id: {resp['data']['message_id']})")
-            return True
-        else:
-            print(f"❌ 推送失败: {resp}")
-            return False
-    except json.JSONDecodeError:
-        print(f"❌ 解析返回失败: {result.stdout[:200]}")
-        return False
-
-
 def main():
     data = load_data()
     markdown = build_markdown(data)
@@ -181,9 +151,13 @@ def main():
     print(markdown)
     print("=" * 40)
 
-    if send_message(markdown):
+    ok, msg_id = send_markdown(markdown)
+    if ok:
+        print(f"✅ 推送成功 (message_id: {msg_id})")
         return 0
-    return 1
+    else:
+        print(f"❌ 推送失败: {msg_id}")
+        return 1
 
 
 if __name__ == "__main__":

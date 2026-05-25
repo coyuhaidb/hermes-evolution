@@ -15,7 +15,7 @@ if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
 from scripts.config import (
-    PROJECT_DIR, DATA_FILE, HTML_FILE,
+    PROJECT_DIR, DATA_FILE,
     HERMES_SKILLS, WIKI_DIR, STATE_DB, SERVICES
 )
 
@@ -198,18 +198,10 @@ def main():
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
     
-    # 生成 HTML
-    generate_html(history)
-    
     print(f"✅ Evolution updated: {TODAY}")
     if changes:
         for k, v in changes.items():
             print(f"   Change - {k}: {v}")
-
-
-def generate_html(history):
-    from scripts.render import generate_html as _render
-    _render(history)
 
 
 if __name__ == "__main__":

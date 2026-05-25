@@ -5,14 +5,14 @@ import json
 import os
 import subprocess
 import sys
-import time
 from datetime import datetime
 
 _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from scripts.config import FEISHU_CHAT_ID, LARK_CLI, PROJECT_DIR
+from scripts.config import PROJECT_DIR
+from scripts.feishu import send_markdown
 
 # 监控的服务列表
 SERVICES = [
@@ -108,25 +108,6 @@ def build_alert(alerts):
     return "\n".join(lines)
 
 
-def push_alert(markdown_text):
-    """推送到飞书"""
-    result = subprocess.run(
-        [LARK_CLI, "im", "+messages-send",
-         "--chat-id", FEISHU_CHAT_ID,
-         "--markdown", markdown_text],
-        capture_output=True, text=True, timeout=30,
-    )
-    if result.returncode == 0:
-        try:
-            resp = json.loads(result.stdout)
-            if resp.get("ok"):
-                print(f"🚨 告警已推送: {resp['data']['message_id']}")
-                return
-        except json.JSONDecodeError:
-            pass
-    print(f"❌ 告警推送失败: {result.stderr[:200]}")
-
-
 def main():
     state = load_state()
     now_key = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -184,7 +165,11 @@ def main():
         for level, msg in alerts:
             print(f"  {level} {msg}")
         print("=" * 40)
-        push_alert(msg)
+        ok, msg_id = send_markdown(msg)
+        if ok:
+            print(f"🚨 告警已推送: {msg_id}")
+        else:
+            print(f"❌ 告警推送失败: {msg_id}")
     else:
         print(f"✅ 一切正常 ({now_key})")
 
