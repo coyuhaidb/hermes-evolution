@@ -11,7 +11,8 @@ _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from scripts.config import DATA_FILE, FEISHU_CHAT_ID, LARK_CLI
+from scripts.config import DATA_FILE, FEISHU_CHAT_ID, LARK_CLI, PROJECT_DIR
+from scripts.chart import generate_chart
 
 
 def load_data():
@@ -91,10 +92,33 @@ def build_markdown(data):
         cat_count = Counter(s.get("category", "其他") for s in skills_list)
         top_cats = cat_count.most_common(5)
 
+        # 英文 → 中文 分类名映射
+        CAT_CN = {
+            "creative": "创意创作",
+            "superpowers-zh": "中文方法论",
+            "software-development": "软件开发",
+            "productivity": "效率工具",
+            "devops": "运维部署",
+            "github": "GitHub 工具",
+            "research": "研究检索",
+            "apple": "Apple 生态",
+            "autonomous-ai-agents": "自主 AI 代理",
+            "media": "媒体处理",
+            "gaming": "游戏",
+            "data-science": "数据科学",
+            "email": "邮件",
+            "mcp": "MCP 集成",
+            "mlops": "MLOps",
+            "note-taking": "笔记",
+            "red-teaming": "红队安全",
+            "smart-home": "智能家居",
+            "social-media": "社交媒体",
+        }
+
         lines.append("**🛠️ 技能分类 Top 5**")
         for cat, count in top_cats:
-            bar = "█" * min(count // 5 + 1, 10)
-            lines.append(f"• {cat}: {count}  {bar}")
+            cn = CAT_CN.get(cat, cat)
+            lines.append(f"• {cn}: **{count}** 个技能")
         lines.append("")
 
     # ── Hermes 版本 ──
@@ -115,13 +139,28 @@ def build_markdown(data):
     return "\n".join(lines)
 
 
-def send_message(markdown_text):
+def send_message(markdown_text, chart_path=None):
     """通过 lark-cli 发送消息到飞书群"""
+    # 先发图片（如果有），再发文字（不能合并在一条消息里）
+    if chart_path and os.path.exists(chart_path):
+        rel_path = os.path.relpath(chart_path, PROJECT_DIR)
+        img_cmd = [
+            LARK_CLI, "im", "+messages-send",
+            "--chat-id", FEISHU_CHAT_ID,
+            "--image", rel_path,
+        ]
+        subprocess.run(img_cmd, capture_output=True, text=True, timeout=30, cwd=PROJECT_DIR)
+
+    cmd = [
+        LARK_CLI, "im", "+messages-send",
+        "--chat-id", FEISHU_CHAT_ID,
+        "--markdown", markdown_text,
+    ]
+
     result = subprocess.run(
-        [LARK_CLI, "im", "+messages-send",
-         "--chat-id", FEISHU_CHAT_ID,
-         "--markdown", markdown_text],
+        cmd,
         capture_output=True, text=True, timeout=30,
+        cwd=PROJECT_DIR,  # 在项目目录下执行，相对路径才能正确解析
     )
 
     if result.returncode != 0:
@@ -146,13 +185,16 @@ def main():
     data = load_data()
     markdown = build_markdown(data)
 
+    # 生成趋势图
+    chart_path = generate_chart()
+
     # 调试：打印消息预览
     print("=" * 40)
     print("📨 消息预览:")
     print(markdown)
     print("=" * 40)
 
-    if send_message(markdown):
+    if send_message(markdown, chart_path):
         return 0
     return 1
 
