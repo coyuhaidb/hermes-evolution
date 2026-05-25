@@ -11,8 +11,7 @@ _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
 
-from scripts.config import DATA_FILE, FEISHU_CHAT_ID, LARK_CLI, PROJECT_DIR
-from scripts.chart import generate_chart
+from scripts.config import DATA_FILE, FEISHU_CHAT_ID, LARK_CLI
 
 
 def load_data():
@@ -20,19 +19,38 @@ def load_data():
         return json.load(f)
 
 
+def sparkline(values):
+    """把一组数值转成文字迷你趋势线"""
+    if not values or len(values) < 2:
+        return ""
+    mn, mx = min(values), max(values)
+    rng = max(mx - mn, 1)
+    chars = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+    n = len(chars) - 1
+    return "".join(chars[min(n, int((v - mn) / rng * n))] for v in values)
+
+
+def extract_trends(snapshots):
+    """从快照中提取趋势数据"""
+    skills = []
+    wikis = []
+    for s in snapshots:
+        skills.append(s["skills"]["total"])
+        wikis.append(s["wiki"]["pages"])
+    return skills, wikis
+
+
 def build_markdown(data):
-    """从 evolution.json 组装飞书消息（Markdown 格式）"""
+    """从 evolution.json 组装飞书消息"""
     snapshots = data.get("snapshots", [])
     plans = data.get("future_plans", [])
     today = datetime.now().strftime("%m/%d")
     total_snapshots = len(snapshots)
+    latest = snapshots[-1] if snapshots else {}
+    changes = latest.get("changes_since_last", {})
 
-    if not snapshots:
-        latest = {}
-        changes = {}
-    else:
-        latest = snapshots[-1]
-        changes = latest.get("changes_since_last", {})
+    # 趋势数据
+    skill_vals, wiki_vals = extract_trends(snapshots)
 
     lines = []
 
@@ -42,29 +60,17 @@ def build_markdown(data):
     # ── 今日概览 ──
     lines.append("**📊 今日概览**")
 
-    # 技能变化
     skills_str = changes.get("skills", "")
-    if skills_str:
-        old_s, new_s = skills_str.split(" → ") if " → " in str(skills_str) else ("?", "?")
-        lines.append(f"• 技能数: {new_s}  (累计)")
-    else:
-        total_skills = latest.get("skills", {}).get("total", 0)
-        lines.append(f"• 技能数: {total_skills}")
+    total_skills = latest.get("skills", {}).get("total", 0)
+    lines.append(f"• 技能数: **{total_skills}**  {sparkline(skill_vals)}")
 
-    # Wiki 变化
-    wiki_str = changes.get("wiki_pages", "")
-    if wiki_str:
-        old_w, new_w = wiki_str.split(" → ") if " → " in str(wiki_str) else ("?", "?")
-        lines.append(f"• Wiki 页面: {new_w}")
-    else:
-        wiki_pages = latest.get("wiki", {}).get("pages", 0)
-        lines.append(f"• Wiki 页面: {wiki_pages}")
+    wiki_pages = latest.get("wiki", {}).get("pages", 0)
+    lines.append(f"• Wiki 页面: **{wiki_pages}**  {sparkline(wiki_vals)}")
 
-    # Commits 变化
     commit_str = changes.get("commits", "")
-    if commit_str:
-        old_c, new_c = commit_str.split(" → ") if " → " in str(commit_str) else ("?", "?")
-        lines.append(f"• Commits: {new_c}")
+    if commit_str and "→" in str(commit_str):
+        new_c = str(commit_str).split("→")[1].strip()
+        lines.append(f"• Commits: **{new_c}**")
 
     # 服务状态
     services = latest.get("services", [])
@@ -84,47 +90,36 @@ def build_markdown(data):
 
     lines.append("")
 
-    # ── 活跃技能排行 ──
+    # ── 技能分类 ──
     skills_list = latest.get("skills", {}).get("list", [])
     if skills_list:
-        # 按 category 分组统计
         from collections import Counter
         cat_count = Counter(s.get("category", "其他") for s in skills_list)
         top_cats = cat_count.most_common(5)
 
-        # 英文 → 中文 分类名映射
         CAT_CN = {
-            "creative": "创意创作",
-            "superpowers-zh": "中文方法论",
-            "software-development": "软件开发",
-            "productivity": "效率工具",
-            "devops": "运维部署",
-            "github": "GitHub 工具",
-            "research": "研究检索",
-            "apple": "Apple 生态",
-            "autonomous-ai-agents": "自主 AI 代理",
-            "media": "媒体处理",
-            "gaming": "游戏",
-            "data-science": "数据科学",
-            "email": "邮件",
-            "mcp": "MCP 集成",
-            "mlops": "MLOps",
-            "note-taking": "笔记",
-            "red-teaming": "红队安全",
-            "smart-home": "智能家居",
+            "creative": "创意创作", "superpowers-zh": "中文方法论",
+            "software-development": "软件开发", "productivity": "效率工具",
+            "devops": "运维部署", "github": "GitHub 工具",
+            "research": "研究检索", "apple": "Apple 生态",
+            "autonomous-ai-agents": "自主 AI 代理", "media": "媒体处理",
+            "gaming": "游戏", "data-science": "数据科学",
+            "email": "邮件", "mcp": "MCP 集成",
+            "mlops": "MLOps", "note-taking": "笔记",
+            "red-teaming": "红队安全", "smart-home": "智能家居",
             "social-media": "社交媒体",
         }
 
         lines.append("**🛠️ 技能分类 Top 5**")
         for cat, count in top_cats:
             cn = CAT_CN.get(cat, cat)
-            lines.append(f"• {cn}: **{count}** 个技能")
+            lines.append(f"• {cn}: **{count}**")
         lines.append("")
 
-    # ── Hermes 版本 ──
+    # ── 系统版本 ──
     ver = latest.get("hermes_version", "")
     if ver:
-        lines.append(f"**🔧 系统版本**  \n{ver}\n")
+        lines.append(f"**🔧 系统**  \n{ver}\n")
 
     # ── 未来计划 ──
     if plans:
@@ -133,24 +128,14 @@ def build_markdown(data):
             lines.append(f"• {plan.get('title', '?')} — {plan.get('desc', '')}")
         lines.append("")
 
-    # ── 快照天数 ──
-    lines.append(f"_📅 已记录 {total_snapshots} 天进化数据_\n")
+    # ── 页脚 ──
+    lines.append(f"_📅 已记录 {total_snapshots} 天_")
 
     return "\n".join(lines)
 
 
-def send_message(markdown_text, chart_path=None):
+def send_message(markdown_text):
     """通过 lark-cli 发送消息到飞书群"""
-    # 先发图片（如果有），再发文字（不能合并在一条消息里）
-    if chart_path and os.path.exists(chart_path):
-        rel_path = os.path.relpath(chart_path, PROJECT_DIR)
-        img_cmd = [
-            LARK_CLI, "im", "+messages-send",
-            "--chat-id", FEISHU_CHAT_ID,
-            "--image", rel_path,
-        ]
-        subprocess.run(img_cmd, capture_output=True, text=True, timeout=30, cwd=PROJECT_DIR)
-
     cmd = [
         LARK_CLI, "im", "+messages-send",
         "--chat-id", FEISHU_CHAT_ID,
@@ -160,14 +145,12 @@ def send_message(markdown_text, chart_path=None):
     result = subprocess.run(
         cmd,
         capture_output=True, text=True, timeout=30,
-        cwd=PROJECT_DIR,  # 在项目目录下执行，相对路径才能正确解析
     )
 
     if result.returncode != 0:
         print(f"❌ 推送失败: {result.stderr}")
         return False
 
-    # 检查返回 JSON
     try:
         resp = json.loads(result.stdout)
         if resp.get("ok"):
@@ -185,16 +168,12 @@ def main():
     data = load_data()
     markdown = build_markdown(data)
 
-    # 生成趋势图
-    chart_path = generate_chart()
-
-    # 调试：打印消息预览
     print("=" * 40)
     print("📨 消息预览:")
     print(markdown)
     print("=" * 40)
 
-    if send_message(markdown, chart_path):
+    if send_message(markdown):
         return 0
     return 1
 
