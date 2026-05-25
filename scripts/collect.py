@@ -1,10 +1,9 @@
 #!/home/rng/.hermes/hermes-agent/venv/bin/python3
-"""Hermes 进化数据采集 + HTML 生成"""
+"""Hermes 进化数据采集 — 每天定时收集系统快照"""
 
 import json
 import os
 import subprocess
-import shutil
 import sys
 from datetime import datetime, date
 from pathlib import Path
@@ -24,6 +23,7 @@ TODAY = NOW.strftime("%Y-%m-%d %H:%M")
 
 
 def run(cmd):
+    """执行 shell 命令并返回 stdout，超时 15 秒，失败返回空字符串"""
     try:
         r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=15)
         if r.returncode != 0 and r.stderr.strip():
@@ -38,14 +38,20 @@ def run(cmd):
 
 
 def count_files(path, ext=".md"):
+    """递归统计目录下指定扩展名的文件数"""
     if not os.path.isdir(path):
         return 0
     return sum(1 for f in Path(path).rglob(f"*{ext}"))
 
 
 def get_skills_data():
+    """
+    扫描 ~/.hermes/skills/ 下所有已安装的 Hermes 技能。
+    返回列表，每个元素含 name / category / description / updated。
+    """
     skills = []
     if os.path.isdir(HERMES_SKILLS):
+        # HERMES_SKILLS 结构：<category>/<skill-name>/SKILL.md
         for cat in sorted(os.listdir(HERMES_SKILLS)):
             cat_path = os.path.join(HERMES_SKILLS, cat)
             if os.path.isdir(cat_path):
@@ -65,12 +71,12 @@ def get_skills_data():
 
 
 def _parse_skill_description(skill_md):
-    """从 SKILL.md 的 YAML 前置元数据中提取 description"""
+    """从 SKILL.md 的 YAML 前置元数据中提取 description 字段"""
     try:
         with open(skill_md, encoding="utf-8", errors="ignore") as f:
             lines = f.readlines()
         in_frontmatter = False
-        for line in lines[:20]:  # 只看前 20 行
+        for line in lines[:20]:  # 只看前 20 行（YAML 块通常在开头）
             stripped = line.strip()
             if stripped == "---":
                 in_frontmatter = not in_frontmatter
@@ -86,12 +92,13 @@ def _parse_skill_description(skill_md):
 
 
 def get_memory_data():
+    """获取 Hermes 状态数据库大小和记忆文件数"""
     memory_count = 0
     memory_size = "N/A"
     if os.path.isfile(STATE_DB):
         size = os.path.getsize(STATE_DB)
         memory_size = f"{size // 1024} KB"
-    # Count from the skills/memory
+    # 统计 skills/memory 目录下的文件数
     memory_skill_dir = os.path.join(HERMES_SKILLS, "memory")
     if os.path.isdir(memory_skill_dir):
         memory_count = count_files(memory_skill_dir)
@@ -99,6 +106,7 @@ def get_memory_data():
 
 
 def get_service_status():
+    """检查所有关键系统服务的运行状态（systemctl is-active）"""
     result = []
     for s in SERVICES:
         status = run(f"systemctl is-active {s} 2>/dev/null")
@@ -107,12 +115,16 @@ def get_service_status():
 
 
 def get_wiki_data():
+    """统计 Wiki 知识库的页面数、原始资料数和最后更新时间"""
     if not os.path.isdir(WIKI_DIR):
         return {"pages": 0, "raw_sources": 0, "last_update": "N/A"}
+    # 页面分布在 concepts/ entities/ meta/ 三个子目录
     pages = count_files(os.path.join(WIKI_DIR, "concepts")) + \
             count_files(os.path.join(WIKI_DIR, "entities")) + \
             count_files(os.path.join(WIKI_DIR, "meta"))
+    # 原始资料放在 raw/articles/
     raw = count_files(os.path.join(WIKI_DIR, "raw", "articles"))
+    # 取 log.md 的修改时间作为最后更新时间
     log_file = os.path.join(WIKI_DIR, "log.md")
     last_update = "N/A"
     if os.path.isfile(log_file):
@@ -122,6 +134,7 @@ def get_wiki_data():
 
 
 def load_history():
+    """读取 evolution.json，返回历史快照数据"""
     if os.path.isfile(DATA_FILE):
         with open(DATA_FILE) as f:
             return json.load(f)
@@ -131,7 +144,8 @@ def load_history():
 def main():
     history = load_history()
     
-    # 采集当前快照
+    # ── 采集当前快照 ──
+    # 每个 snapshot 是一次完整的系统状态记录
     snapshot = {
         "date": TODAY,
         "skills": {
@@ -155,23 +169,38 @@ def main():
         "hermes_version": run("hermes --version 2>/dev/null | head -1"),
     }
     
-    # 计算变化（和上一次对比）
+    # ── 计算与上一次快照的变化量 ──
+    # 对比 skills/wiki/commits 等数值指标，记录增减
     prev = history["snapshots"][-1] if history["snapshots"] else None
     changes = {}
     if prev:
+        # 逐个指标对比
         for key in ["skills", "wiki_pages", "wiki_sources", "commits"]:
-            curr_val = snapshot.get(key if key != "wiki_pages" else "wiki", {}).get("total" if key != "wiki_pages" else "pages", 0) if key != "commits" else int(snapshot.get("system", {}).get("commits", 0) or 0)
-            prev_val = prev.get(key if key != "wiki_pages" else "wiki", {}).get("total" if key != "wiki_pages" else "pages", 0) if key != "commits" else int(prev.get("system", {}).get("commits", 0) or 0)
-            key2 = key
+            # 从当前快照中取对应值
+            if key == "commits":
+                curr_val = int(snapshot.get("system", {}).get("commits", 0) or 0)
+                prev_val = int(prev.get("system", {}).get("commits", 0) or 0)
+            elif key == "wiki_pages":
+                curr_val = snapshot.get("wiki", {}).get("pages", 0)
+                prev_val = prev.get("wiki", {}).get("pages", 0)
+            elif key == "wiki_sources":
+                curr_val = snapshot.get("wiki", {}).get("raw_sources", 0)
+                prev_val = prev.get("wiki", {}).get("raw_sources", 0)
+            else:
+                curr_val = snapshot.get(key, {}).get("total", 0)
+                prev_val = prev.get(key, {}).get("total", 0)
+
             label = {"skills": "技能数", "wiki_pages": "Wiki 页面", "wiki_sources": "原始资料", "commits": "Git 提交"}.get(key, key)
             if curr_val != prev_val:
-                changes[key2] = f"{prev_val} → {curr_val}"
+                changes[key] = f"{prev_val} → {curr_val}"
+        # 服务状态变化（整体对比）
         if prev.get("services") != snapshot["services"]:
             changes["services"] = "服务状态变化"
     
     snapshot["changes_since_last"] = changes
     
-    # 去重：同一天已存在则替换，否则追加
+    # ── 去重：同一天已存在则替换，否则追加 ──
+    # 防止一天内多次运行 cron 产生重复数据
     today_key = TODAY[:10]
     existing_idx = None
     for i, s in enumerate(history["snapshots"]):
@@ -187,9 +216,9 @@ def main():
     if len(history["snapshots"]) > 365:
         history["snapshots"] = history["snapshots"][-365:]
     
-    # 保存数据
+    # ── 保存数据 ──
     os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
-    # 初始化未来方向（如果没有的话）
+    # 如果首次运行，初始化未来计划占位
     if "future_plans" not in history:
         history["future_plans"] = [
             {"title": "📦 接入更多消息平台", "desc": "配置 Telegram / Discord 等平台"},
