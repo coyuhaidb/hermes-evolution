@@ -170,7 +170,18 @@ def main():
             changes["services"] = "服务状态变化"
     
     snapshot["changes_since_last"] = changes
-    history["snapshots"].append(snapshot)
+    
+    # 去重：同一天已存在则替换，否则追加
+    today_key = TODAY[:10]
+    existing_idx = None
+    for i, s in enumerate(history["snapshots"]):
+        if s["date"][:10] == today_key:
+            existing_idx = i
+            break
+    if existing_idx is not None:
+        history["snapshots"][existing_idx] = snapshot
+    else:
+        history["snapshots"].append(snapshot)
     
     # 只保留最近 365 条
     if len(history["snapshots"]) > 365:
